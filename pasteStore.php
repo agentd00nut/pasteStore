@@ -43,7 +43,7 @@ class PasteStore{
 			.'&api_paste_name='.$this->getName()
 			.'&api_paste_expire_date='.$this->getExpire()
 			.'&api_dev_key='.$this->getDevKey()
-			.'&api_paste_code='.$code);
+			.'&api_paste_code='.urlencode($code));
 	}
 
 	public function uploadAsUser($code){
@@ -52,7 +52,7 @@ class PasteStore{
 			.'&api_paste_name='.$this->getName()
 			.'&api_paste_expire_date='.$this->getExpire()
 			.'&api_dev_key='.$this->getDevKey()
-			.'&api_paste_code='.$code);
+			.'&api_paste_code='.urlencode($code));
 	}
 
 	/**
@@ -126,7 +126,7 @@ class PasteStore{
 	 */
 	public function setName( $name )
 	{
-		$this->name = $name;
+		$this->name = urlencode($name);
 
 		return $this;
 	}
@@ -176,7 +176,7 @@ function getAllSTDIN(){
 	$read  = array($fh);
 	$write = NULL;
 	$except = NULL;
-	if ( stream_select( $read, $write, $except, 0 ) === 1 ) {
+	if ( stream_select( $read, $write, $except, 1 ) === 1 ) {
 		while ($line = fgets( $fh )) {
 			$stdin .= $line;
 		}
@@ -187,6 +187,7 @@ function getAllSTDIN(){
 
 
 $data = getAllSTDIN();
+
 $paste = new PasteStore(file_get_contents("devKey"), file_get_contents("userKey"));
 
 /* No pipe, no arg */
@@ -199,20 +200,22 @@ if ( empty( $data ) && $argc == 1 )
 /* No Pipe, Found an arg */
 if( empty( $data ) && $argc == 2 )
 {
-	$data = file_get_contents($argv[2]);
+	$fh = fopen($argv[1], "rb");
+	$data = fread($fh, filesize($argv[1]));
+	fclose($fh);
 	if ( empty( $data ) )
 	{
-		echo "Couldn't read file: ".$argv[2]."\n";
+		echo "Couldn't read file: ".$argv[1]."\n";
 		die();
 	}
 }
 
-/* Pipe, with an arg, using it as paste name */
-if( ! empty($data) && $argc == 2){
-	$paste->setName($argv[2]);
-}
+///* Pipe, with an arg, using it as paste name */
+//if( ! empty($data) && $argc == 2){
+//	$paste->setName($argv[2]);
+//}
 
 
-echo $paste->uploadAsUser($data);
+echo $paste->uploadAsUser($data)."\n";
 
 
