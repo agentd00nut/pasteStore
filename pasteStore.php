@@ -172,7 +172,7 @@ class PasteStore{
 
 function getAllSTDIN(){
 	$stdin = '';
-	$fh = fopen('php://stdin', 'r');
+	$fh = fopen('php://stdin', 'rb');
 	$read  = array($fh);
 	$write = NULL;
 	$except = NULL;
@@ -210,10 +210,10 @@ if( empty( $data ) && $argc == 2 )
 	}
 }
 
-///* Pipe, with an arg, using it as paste name */
-//if( ! empty($data) && $argc == 2){
-//	$paste->setName($argv[2]);
-//}
+/* Pipe, with an arg, using it as paste name */
+if( ! empty($data) && $argc == 2){
+	$paste->setName($argv[2]);
+}
 
 
 echo $paste->uploadAsUser($data)."\n";
